@@ -10,7 +10,7 @@ import (
 )
 
 func managePackages(def shared.DefinitionPackages, actions []shared.DefinitionAction,
-	release string) error {
+	iface interface{}, release string) error {
 	var err error
 
 	manager := managers.Get(def.Manager)
@@ -45,7 +45,11 @@ func managePackages(def shared.DefinitionPackages, actions []shared.DefinitionAc
 
 		// Run post update hook
 		for _, action := range actions {
-			err = shared.RunScript(action.Action)
+			out, err := shared.RenderTemplate(action.Action, iface)
+			if err != nil {
+				return fmt.Errorf("Failed to render post-update action: %s", err)
+			}
+			err = shared.RunScript(out)
 			if err != nil {
 				return fmt.Errorf("Failed to run post-update: %s", err)
 			}

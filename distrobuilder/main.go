@@ -206,22 +206,30 @@ func (c *cmdGlobal) preRunBuild(cmd *cobra.Command, args []string) error {
 
 	// Run post unpack hook
 	for _, hook := range c.definition.GetRunnableActions("post-unpack") {
-		err := shared.RunScript(hook.Action)
+		out, err := shared.RenderTemplate(hook.Action, c.definition)
+		if err != nil {
+			return fmt.Errorf("Failed to render post-unpack action: %s", err)
+		}
+		err = shared.RunScript(out)
 		if err != nil {
 			return fmt.Errorf("Failed to run post-unpack: %s", err)
 		}
 	}
 
 	// Install/remove/update packages
-	err = managePackages(c.definition.Packages,
-		c.definition.GetRunnableActions("post-update"), c.definition.Image.Release)
+	err = managePackages(c.definition.Packages, c.definition.GetRunnableActions("post-update"),
+		c.definition, c.definition.Image.Release)
 	if err != nil {
 		return fmt.Errorf("Failed to manage packages: %s", err)
 	}
 
 	// Run post packages hook
 	for _, hook := range c.definition.GetRunnableActions("post-packages") {
-		err := shared.RunScript(hook.Action)
+		out, err := shared.RenderTemplate(hook.Action, c.definition)
+		if err != nil {
+			return fmt.Errorf("Failed to render post-package action: %s", err)
+		}
+		err = shared.RunScript(out)
 		if err != nil {
 			return fmt.Errorf("Failed to run post-packages: %s", err)
 		}
