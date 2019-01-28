@@ -53,7 +53,9 @@ func managePackages(def shared.DefinitionPackages, actions []shared.DefinitionAc
 	}
 
 	var installablePackages []string
+	var installableArguments []string
 	var removablePackages []string
+	var removableArguments []string
 
 	for _, set := range def.Sets {
 		if len(set.Releases) > 0 && !lxd.StringInSlice(release, set.Releases) {
@@ -62,17 +64,19 @@ func managePackages(def shared.DefinitionPackages, actions []shared.DefinitionAc
 
 		if set.Action == "install" {
 			installablePackages = append(installablePackages, set.Packages...)
+			installableArguments = append(installableArguments, set.Arguments...)
 		} else if set.Action == "remove" {
 			removablePackages = append(removablePackages, set.Packages...)
+			removableArguments = append(removableArguments, set.Arguments...)
 		}
 	}
 
-	err = manager.Install(installablePackages)
+	err = manager.Install(installablePackages, installableArguments)
 	if err != nil {
 		return err
 	}
 
-	err = manager.Remove(removablePackages)
+	err = manager.Remove(removablePackages, removableArguments)
 	if err != nil {
 		return err
 	}

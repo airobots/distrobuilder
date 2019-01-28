@@ -48,24 +48,26 @@ func Get(name string) *Manager {
 }
 
 // Install installs packages to the rootfs.
-func (m Manager) Install(pkgs []string) error {
+func (m Manager) Install(pkgs []string, arguments []string) error {
 	if len(m.flags.install) == 0 || pkgs == nil || len(pkgs) == 0 {
 		return nil
 	}
 
 	args := append(m.flags.global, m.flags.install...)
+	args = append(args, arguments...)
 	args = append(args, pkgs...)
 
 	return shared.RunCommand(m.command, args...)
 }
 
 // Remove removes packages from the rootfs.
-func (m Manager) Remove(pkgs []string) error {
+func (m Manager) Remove(pkgs []string, arguments []string) error {
 	if len(m.flags.remove) == 0 || pkgs == nil || len(pkgs) == 0 {
 		return nil
 	}
 
 	args := append(m.flags.global, m.flags.remove...)
+	args = append(args, arguments...)
 	args = append(args, pkgs...)
 
 	return shared.RunCommand(m.command, args...)

@@ -16,6 +16,7 @@ import (
 // or removed.
 type DefinitionPackagesSet struct {
 	Packages []string `yaml:"packages"`
+	Arguments []string `yaml:"arguments"`
 	Action   string   `yaml:"action"`
 	Releases []string `yaml:"releases,omitempty"`
 }
