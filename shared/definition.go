@@ -3,6 +3,7 @@ package shared
 import (
 	"errors"
 	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -91,13 +92,17 @@ type DefinitionTarget struct {
 
 // A DefinitionFile represents a file which is to be created inside to chroot.
 type DefinitionFile struct {
-	Generator string                 `yaml:"generator"`
-	Path      string                 `yaml:"path,omitempty"`
-	Content   string                 `yaml:"content,omitempty"`
-	Releases  []string               `yaml:"releases,omitempty"`
-	Name      string                 `yaml:"name,omitempty"`
-	Template  DefinitionFileTemplate `yaml:"template,omitempty"`
-	Templated bool                   `yaml:"templated,omitempty"`
+	Generator     string                 `yaml:"generator"`
+	Path          string                 `yaml:"path,omitempty"`
+	Content       string                 `yaml:"content,omitempty"`
+	Uid           int                    `yaml:"uid,omitempty"`
+	Gid           int                    `yaml:"gid,omitempty"`
+	FileMode      *os.FileMode           `yaml:"file_mode,omitempty"`
+	DirectoryMode *os.FileMode           `yaml:"directory_mode,omitempty"`
+	Releases      []string               `yaml:"releases,omitempty"`
+	Name          string                 `yaml:"name,omitempty"`
+	Template      DefinitionFileTemplate `yaml:"template,omitempty"`
+	Templated     bool                   `yaml:"templated,omitempty"`
 }
 
 // A DefinitionFileTemplate represents the settings used by generators
@@ -259,11 +264,13 @@ func (d *Definition) Validate() error {
 
 	validGenerators := []string{
 		"dump",
+		"copy",
 		"template",
 		"hostname",
 		"hosts",
 		"remove",
 		"upstart-tty",
+		"run-shell",
 	}
 
 	for _, file := range d.Files {
